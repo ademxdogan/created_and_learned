@@ -1,11 +1,11 @@
 #!/bin/bash
 
-if [ -z "$(ls -A /home/adem/Desktop/burdamisin)" ]
+if [ -z "$(ls -A /home/kimgirdi)" ]
 then
     echo "bos"
     exit 0
 else
-    cat /home/adem/Desktop/burdamisin
+    cat /home/kimgirdi
     exit 1
 
 fi
