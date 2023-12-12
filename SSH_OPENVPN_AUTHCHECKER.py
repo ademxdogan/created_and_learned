@@ -62,7 +62,7 @@ for entry in one_hour:
         openvpn_login.append(entry)
 
 if len(ssh_login) or len(openvpn_login) != 0:
-    with open('/kimgirdi', 'a') as f:
+    with open('/home/kimgirdi', 'a') as f:
         for i in ssh_login:
             f.write(str(i))
             f.write('\n')
