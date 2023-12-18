@@ -42,7 +42,7 @@ def is_within_last_hour(log_entry):
         log_datetime = datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S')
 
     time_difference = current_datetime - log_datetime
-    return time_difference <= timedelta(hours=1)
+    return time_difference <= timedelta(minutes=5)
 
 # Check each log entry and print True if it's within the last hour, False otherwise
 for entry in readlog(auth_log_path):
@@ -56,7 +56,7 @@ for entry in readlog(openvpn_log_path):
         one_hour.append(entry)    
 
 for entry in one_hour:
-    if "sshd" in entry:
+    if "preauth" in entry:
         ssh_login.append(entry)
     elif "CN" in entry:
         openvpn_login.append(entry)
