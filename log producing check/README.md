@@ -1,0 +1,1 @@
+This is the nrpe script that notifies a log server if one of the resources stops producing logs. It tracks the file creation times in the folders below the directory where the logs are located and reports the folders that have not modified files in the last hour.
