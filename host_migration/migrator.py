@@ -97,13 +97,18 @@ def main():
     log("Starting host migration script")
 
     bosalacak_host = get_host_input("Bosaltmak istediginiz hostu girin: ")
-    doldurulacak_host = get_host_input("Tasiyacaginiz hostu girin: ")
+    doldurulacak_host_list = get_host_input("Tasiyacaginiz hostlari virgülle ayırarak girin (örn: sunucu1,sunucu2,sunucu3): ").split(',')
 
     vms_json = get_vms_on_host(bosalacak_host)
     migrate_edilecek_vmler = parse_vm_ids(vms_json)
 
+    host_index = 0
+    num_hosts = len(doldurulacak_host_list)
+
     for vm_id in migrate_edilecek_vmler:
-        migrate_vm(vm_id, doldurulacak_host)
+        target_host = doldurulacak_host_list[host_index]
+        migrate_vm(vm_id, target_host)
+        host_index = (host_index + 1) % num_hosts
         check_migration_status(vm_id, doldurulacak_host)
 
     log("Host migration script completed")
