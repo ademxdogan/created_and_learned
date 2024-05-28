@@ -68,30 +68,31 @@ def migrate_vm(vm_id, target_host):
         run_command(command)
         check_migration_status(vm_id, target_host)
 
-def check_migration_status(vm_id, target_host):
+def check_migration_status(vm_id, target_host, bosalacak_host):
     while True:
         command = f"openstack server show {vm_id} -f json"
         result = run_command(command)
-        vm_info = result.stdout
-        
-        
-        vm_info = json.loads(vm_info)
-        
-        
-        vm_info = json.loads(vm_info)
-        task_state = vm_info.get("OS-EXT-STS:task_state")
-        vm_state = vm_info.get("OS-EXT-STS:vm_state")
-        current_host = vm_info.get("OS-EXT-SRV-ATTR:host")
-        
-        if task_state == "migrating":
-            log(f"VM {vm_id} is still migrating. Waiting...")
-            time.sleep(60)
-        elif vm_state == "error":
-            log(f"VM {vm_id} migration encountered an error. Stopping script.")
-            raise Exception("Migration error")
-        elif current_host == target_host:
-            log(f"VM {vm_id} successfully migrated to {target_host}.")
-            break
+        try:
+            vm_info = json.loads(result.stdout)
+            task_state = vm_info.get("OS-EXT-STS:task_state")
+            vm_state = vm_info.get("OS-EXT-STS:vm_state")
+            current_host = vm_info.get("OS-EXT-SRV-ATTR:host")
+            
+            if task_state == "migrating":
+                log(f"VM {vm_id} is still migrating. Waiting...")
+                time.sleep(60)
+            elif vm_state == "error":
+                log(f"VM {vm_id} migration encountered an error. Stopping script.")
+                raise Exception("Migration error")
+            elif task_state is None and current_host == bosalacak_host:
+                log(f"VM {vm_id} cannot be migrated, going to the next one.")
+                break
+            elif current_host == target_host:
+                log(f"VM {vm_id} successfully migrated to {target_host}.")
+                break
+        except json.JSONDecodeError as e:
+            log(f"Error decoding JSON for VM {vm_id}: {e}")
+            raise
 
 def main():
     log("Starting host migration script")
