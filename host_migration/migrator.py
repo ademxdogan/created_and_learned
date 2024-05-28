@@ -40,9 +40,24 @@ def parse_vm_ids(vms_json):
     vms = json.loads(vms_json)
     return {vm['ID']: vm for vm in vms}
 
+def should_migrate_vm(vm_id):
+    command = f"openstack server show {vm_id} -f json"
+    result = run_command(command)
+    try:
+        vm_info = json.loads(result.stdout)
+        if vm_info.get("image") == "N/A (booted from volume)":
+            log(f"VM {vm_id} is booted from volume and will not be migrated.")
+            return False
+        return True
+    except json.JSONDecodeError as e:
+        log(f"Error decoding JSON for VM {vm_id}: {e}")
+        return False
+
 def migrate_vm(vm_id, target_host):
-    command = f"nova live-migration {vm_id} {target_host}"
-    run_command(command)
+    if should_migrate_vm(vm_id):
+        command = f"nova live-migration {vm_id} {target_host}"
+        run_command(command)
+        check_migration_status(vm_id, target_host)
 
 def check_migration_status(vm_id, target_host):
     while True:
