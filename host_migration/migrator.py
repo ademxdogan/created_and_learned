@@ -45,9 +45,18 @@ def should_migrate_vm(vm_id):
     result = run_command(command)
     try:
         vm_info = json.loads(result.stdout)
+        
+        # Check if the VM is booted from volume
         if vm_info.get("image") == "N/A (booted from volume)":
             log(f"VM {vm_id} is booted from volume and will not be migrated.")
             return False
+        
+        # Check the flavor for 64GB or 32GB
+        flavor = vm_info.get("flavor")
+        if "64GB" in flavor or "32GB" in flavor:
+            log(f"VM {vm_id} has a flavor with 64GB or 32GB and will not be migrated.")
+            return False
+
         return True
     except json.JSONDecodeError as e:
         log(f"Error decoding JSON for VM {vm_id}: {e}")
